@@ -1,5 +1,5 @@
 import os 
-import mimetypes
+import shutil
 import re
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -22,10 +22,14 @@ trackList = {
 }
 
 class SortFolder(FileSystemEventHandler):
-
+    
     def on_modified(self, event):
         for file in os.listdir(watchPath): # for each of the items in the dirclass
+            found = False
+            print(file + " FOUND? " + str(found))
             for extension, location in trackList.items():   # compare the extensions against the name of the file
+                print("trying" + str(extension))
+                if found : break 
                 if re.search(extension, file):  # if there is a match
                     if not os.path.exists(location): # check if the folder where it's meant to go doesnt exists
                         try:
@@ -35,8 +39,12 @@ class SortFolder(FileSystemEventHandler):
                             print(error)
 
                     print(watchPath+"\\"+file+" -> " + location + "\\" + file)
-                    os.rename(watchPath+"\\"+file,location+"\\"+file)
-                    #break
+                    #os.rename(watchPath+"\\"+file,location+"\\"+file)
+                    try:
+                        os.replace(watchPath+"\\"+file,location+"\\"+file)
+                        found = True
+                    except OSError as error:
+                        print(error)
 
 
 observer = Observer()
@@ -46,7 +54,7 @@ observer.start()
 
 try:
     while True:
-        time.sleep(3)
+        time.sleep(10)
 except KeyboardInterrupt:
     observer.stop()
 observer.join()
