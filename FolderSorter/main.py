@@ -1,8 +1,4 @@
 import os
-#import re
-# from watchdog.observers import Observer
-# from watchdog.events import FileSystemEventHandler
-# import time
 
 watch_path = "C:\\Users\\ahnaf\\Downloads\\test2"   # The folder that is sorted
 unsorted = watch_path+"\\Unsorted"                  # where the unsorted files go (folders aren't sorted)
