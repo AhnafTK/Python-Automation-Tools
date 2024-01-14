@@ -4,9 +4,11 @@ import os
 # from watchdog.events import FileSystemEventHandler
 # import time
 
-watch_path = "C:\\Users\\ahnaf\\Downloads\\test2"
-# where the unsorted files go (folders aren't sorted)
-unsorted = watch_path+"\\Unsorted"
+watch_path = "C:\\Users\\ahnaf\\Downloads\\test2"   # The folder that is sorted
+unsorted = watch_path+"\\Unsorted"                  # where the unsorted files go (folders aren't sorted)
+dest_path = ""                                      # Destination path
+debug_mode = False                                  # prints output when true
+
 # dictionary containing the targetted formats and their dest
 track_list = {
     ".jpg": watch_path+"\\Images",
@@ -22,35 +24,33 @@ track_list = {
     ".mov": watch_path+"\\movs",
 }
 
-for file in os.listdir(watch_path): 
-    # print(file)
+for file in os.listdir(watch_path):                 # iterate through each file in the watched folder
+    if debug_mode : print(file)
+    # if its a folder, then skip
+    if not os.path.isfile(watch_path+"\\"+file):    # If it's not a file, then skip. Folders aren't sorted
+        continue
+    
+    file_extension = os.path.splitext(file)[1]      # get the file extension from the returned tuple
 
-    # get the extension of the file
-    # returns tuple, index 1 contains extension
-    file_extension = os.path.splitext(file)[1]
-
-    if file_extension.lower() in track_list:
-        # it exists
+    if file_extension.lower() in track_list:                 # if its in the track list
         dest_path = track_list[file_extension.lower()]
-        # check if the folder where it's meant to go doesnt exists
-        if not os.path.exists(dest_path):
-            try:
-                print("making dir " + dest_path)
-                os.makedirs(dest_path)
-            except OSError as error:
-                print(error)
+        if debug_mode : print("IN TRACKLIST: "+ dest_path)
+    else: # if its not
+        dest_path = unsorted
+        if debug_mode : print("UNSORTED: "+ dest_path)
 
+    # check if the destination exists
+    if not os.path.exists(dest_path):                                   # if the dest folder doesnt exists
+        if debug_mode : print("DEST DOESNT EXIST: " + dest_path)
+        if debug_mode : print("MAKING: " + dest_path)
         try:
-            os.replace(watch_path+"\\"+file, dest_path+"\\"+file)
-        except OSError as error:
+            os.makedirs(dest_path)                                      # make the dest folder
+        except OSError as error:   
             print(error)
 
-    else:
-        # check if its a folder
-        if os.path.isfile(watch_path+"\\"+file):
-            print(watch_path+"\\"+file + " iS FILE")
-            dest_path = unsorted
-            try:
-                os.replace(watch_path+"\\"+file, unsorted+"\\"+file)
-            except OSError as error:
-                print(error)
+    try:
+        os.replace(watch_path+"\\"+file, dest_path+"\\"+file)           # move the items
+    except OSError as error:
+        print(error)
+    
+    if debug_mode : print(" ")
